@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSV Construction</title>
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Background for body */
+body {
+  background: url('https://images.unsplash.com/photo-1616627566897-1c7b0803f0e1?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: rgba(0,0,0,0.85);
+  color: white;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.navbar .logo {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.navbar .nav-links li a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s, transform 0.3s;
+}
+
+.navbar .nav-links li a:hover {
+  color: #ff9900;
+  transform: scale(1.1);
+}
+
+/* Hero Section */
+.hero {
+  height: 100vh;
+  background: url('https://images.unsplash.com/photo-1598461912912-8042f41624dc?auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.5);
+}
+
+.hero-text {
+  position: relative;
+  animation: fadeIn 2s ease-in-out;
+}
+
+.hero h1 {
+  font-size: 60px;
+  color: #fff;
+  text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 22px;
+  margin-bottom: 30px;
+  color: #f0f0f0;
+  text-shadow: 1px 1px 8px rgba(0,0,0,0.6);
+}
+
+.btn {
+  padding: 14px 35px;
+  background-color: #ff9900;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.btn:hover {
+  background-color: #e68a00;
+  transform: scale(1.05);
+}
+
+/* Services Section */
+.services {
+  padding: 100px 50px;
+  background: rgba(255,255,255,0.95);
+  text-align: center;
+}
+
+.services h2 {
+  font-size: 42px;
+  margin-bottom: 60px;
+  color: #333;
+}
+
+.service-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.card {
+  background: white;
+  padding: 30px 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  transition: transform 0.4s, box-shadow 0.4s;
+  perspective: 1000px;
+}
+
+.card:hover {
+  transform: rotateY(15deg) translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.card p {
+  font-size: 16px;
+  color: #555;
+}
+
+/* About Section */
+.about {
+  padding: 80px 50px;
+  text-align: center;
+  background: rgba(240,240,240,0.95);
+}
+
+.about h2 {
+  font-size: 38px;
+  margin-bottom: 30px;
+}
+
+.about p {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* Login & Signup Section */
+.auth-section {
+  padding: 80px 50px;
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  background: rgba(255,255,255,0.95);
+}
+
+.auth-box {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  width: 300px;
+  transition: transform 0.3s;
+}
+
+.auth-box:hover {
+  transform: translateY(-5px);
+}
+
+.auth-box h3 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.auth-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.auth-box button {
+  width: 100%;
+  padding: 12px;
+  background-color: #ff9900;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.auth-box button:hover {
+  background-color: #e68a00;
+}
+
+/* Footer */
+.footer {
+  background-color: #222;
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% {opacity: 0; transform: translateY(-20px);}
+  100% {opacity: 1; transform: translateY(0);}
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero h1 {
+    font-size: 36px;
+  }
+  .hero p {
+    font-size: 16px;
+  }
+  .service-cards {
+    grid-template-columns: 1fr;
+  }
+  .auth-section {
+    flex-direction: column;
+    gap: 30px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">KSV Construction</div>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#auth">Login/Signup</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="hero">
+  <div class="hero-text">
+    <h1>Building Your Dream Home</h1>
+    <p>Expert construction and home services since 2019</p>
+    <a href="#auth" class="btn">Get Started</a>
+  </div>
+</section>
+
+<!-- Services Section -->
+<section id="services" class="services">
+  <h2>Our Services</h2>
+  <div class="service-cards">
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1594140118321-0fc9c5b41d5c?auto=format&fit=crop&w=800&q=80" alt="Construction">
+      <h3>Construction</h3>
+      <p>Quality residential and commercial construction.</p>
+    </div>
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1597262539831-11d47087c7c2?auto=format&fit=crop&w=800&q=80" alt="Interior">
+      <h3>Interior Design</h3>
+      <p>Modern and elegant interior solutions.</p>
+    </div>
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1593891409201-b4ff6c28c2cb?auto=format&fit=crop&w=800&q=80" alt="Plumbing">
+      <h3>Plumbing & Electrical</h3>
+      <p>Expert plumbing and electrical services.</p>
+    </div>
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1581091215363-6aeb00d43f5b?auto=format&fit=crop&w=800&q=80" alt="Flooring">
+      <h3>Flooring & Tiles</h3>
+      <p>Durable flooring, tiles, and POP works.</p>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about">
+  <h2>About Us</h2>
+  <p>KSV Construction has been delivering high-quality homes and renovations since 2019. Skilled professionals and customer satisfaction are our top priority.</p>
+</section>
+
+<!-- Login & Signup Section -->
+<section id="auth" class="auth-section">
+  <div class="auth-box">
+    <h3>Login</h3>
+    <input type="text" placeholder="Username">
+    <input type="password" placeholder="Password">
+    <button>Login</button>
+  </div>
+  <div class="auth-box">
+    <h3>Signup</h3>
+    <input type="text" placeholder="Full Name">
+    <input type="email" placeholder="Email">
+    <input type="password" placeholder="Password">
+    <button>Signup</button>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>&copy; 2025 KSV Construction. All Rights Reserved.</p>
+  <p>Contact: 9336977816</p>
+</footer>
+
+</body>
+</html>

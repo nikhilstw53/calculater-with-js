@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>3D Picker Wheel Spinner</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body{
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        flex-direction:column;
+        color:white;
+        overflow:hidden;
+    }
+
+    .container{
+        width:420px;
+        text-align:center;
+        padding:20px;
+        background:rgba(255,255,255,0.05);
+        border-radius:20px;
+        box-shadow:0 0 25px rgba(0,0,0,0.4);
+        backdrop-filter:blur(6px);
+    }
+
+    h1{
+        font-size:28px;
+        margin-bottom:15px;
+        text-shadow:0 0 10px cyan;
+    }
+
+    input{
+        padding:10px;
+        width:60%;
+        border-radius:8px;
+        border:none;
+        outline:none;
+        margin-bottom:15px;
+        font-size:16px;
+    }
+
+    button{
+        padding:10px 20px;
+        background:#ff0080;
+        border:none;
+        border-radius:8px;
+        color:white;
+        cursor:pointer;
+        margin-left:10px;
+        font-size:15px;
+        transition:0.3s;
+    }
+
+    button:hover{
+        transform:scale(1.1);
+        background:#ff00c8;
+    }
+
+    #wheel{
+        width:350px;
+        height:350px;
+        border-radius:50%;
+        margin:30px auto;
+        position:relative;
+        overflow:hidden;
+
+        /* NEON RING */
+        box-shadow:0 0 20px cyan, 0 0 50px cyan inset;
+
+        /* 3D Look */
+        transform:perspective(900px) rotateX(15deg);
+        transition:transform 5s cubic-bezier(.17,.67,.16,1.1);
+    }
+
+    .slice{
+        position:absolute;
+        width:50%;
+        height:50%;
+        left:50%;
+        top:50%;
+        transform-origin:0% 0%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:14px;
+        font-weight:bold;
+        color:black;
+        text-shadow:1px 1px 2px white;
+    }
+
+    #pointer{
+        margin:auto;
+        width:0;
+        height:0;
+        border-left:25px solid transparent;
+        border-right:25px solid transparent;
+        border-bottom:35px solid yellow;
+    }
+
+    #winner{
+        margin-top:20px;
+        font-size:24px;
+        text-shadow:0 0 10px cyan;
+    }
+
+    /* REMOVE LIST */
+    .list-box{
+        margin-top:15px;
+        text-align:left;
+        max-height:120px;
+        overflow-y:auto;
+    }
+    .list-item{
+        background:rgba(255,255,255,0.1);
+        padding:6px 10px;
+        margin:5px 0;
+        border-radius:8px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    }
+    .remove-btn{
+        background:red;
+        padding:5px 10px;
+        border:none;
+        border-radius:5px;
+        cursor:pointer;
+        color:white;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🎡 3D Neon Picker Wheel</h1>
+
+    <input type="text" id="nameInput" placeholder="Enter Name">
+    <button onclick="addName()">Add</button>
+
+    <div id="pointer"></div>
+
+    <div id="wheel"></div>
+
+    <button onclick="spinWheel()">SPIN</button>
+
+    <div id="winner"></div>
+
+    <h3 style="margin-top:20px;">Names List</h3>
+    <div class="list-box" id="listBox"></div>
+</div>
+
+<script>
+let items = [];
+let wheel = document.getElementById("wheel");
+let listBox = document.getElementById("listBox");
+let winnerBox = document.getElementById("winner");
+let angle = 0;
+
+// ---- CONFETTI CANVAS ----
+let confettiCanvas = document.createElement("canvas");
+confettiCanvas.id = "confetti";
+confettiCanvas.style.position = "fixed";
+confettiCanvas.style.top = 0;
+confettiCanvas.style.left = 0;
+confettiCanvas.style.width = "100%";
+confettiCanvas.style.height = "100%";
+confettiCanvas.style.pointerEvents = "none";
+document.body.appendChild(confettiCanvas);
+
+const confettiCtx = confettiCanvas.getContext("2d");
+let confettiPieces = [];
+
+// CONFETTI FUNCTION
+function startConfetti() {
+    confettiPieces = [];
+    for (let i = 0; i < 150; i++) {
+        confettiPieces.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight - window.innerHeight,
+            size: Math.random() * 8 + 4,
+            angle: Math.random() * 360,
+            velocityY: Math.random() * 4 + 2,
+            velocityX: (Math.random() - 0.5) * 3,
+            color: randomColor()
+        });
+    }
+
+    function animateConfetti() {
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+
+        confettiPieces.forEach((p) => {
+            p.y += p.velocityY;
+            p.x += p.velocityX;
+            p.angle += 5;
+
+            if (p.y > window.innerHeight) p.y = -10;
+
+            confettiCtx.fillStyle = p.color;
+            confettiCtx.save();
+            confettiCtx.translate(p.x, p.y);
+            confettiCtx.rotate((p.angle * Math.PI) / 180);
+            confettiCtx.fillRect(0, 0, p.size, p.size);
+            confettiCtx.restore();
+        });
+
+        requestAnimationFrame(animateConfetti);
+    }
+
+    animateConfetti();
+
+    // Stop after 4 seconds
+    setTimeout(() => {
+        confettiPieces = [];
+    }, 4000);
+}
+
+// Celebration Popup
+function showPopup(winner) {
+    let popup = document.createElement("div");
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%) scale(0.5)";
+    popup.style.background = "rgba(255,255,255,0.15)";
+    popup.style.backdropFilter = "blur(10px)";
+    popup.style.padding = "30px 50px";
+    popup.style.borderRadius = "20px";
+    popup.style.color = "white";
+    popup.style.boxShadow = "0 0 25px cyan";
+    popup.style.fontSize = "30px";
+    popup.style.textAlign = "center";
+    popup.style.transition = "0.4s";
+    popup.style.zIndex = 9999;
+
+    popup.innerHTML = `🎉 Congratulations!<br><b>${winner}</b> 🎉`;
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        popup.style.transform = "translate(-50%, -50%) scale(1)";
+    }, 50);
+
+    setTimeout(() => {
+        popup.style.transform = "translate(-50%, -50%) scale(0)";
+        setTimeout(() => popup.remove(), 300);
+    }, 3000);
+}
+
+// Random color generator
+function randomColor() {
+    return "hsl(" + Math.floor(Math.random() * 360) + ", 85%, 60%)";
+}
+
+// Add name
+function addName() {
+    const name = document.getElementById("nameInput").value.trim();
+    if (name === "") return;
+
+    items.push(name);
+    document.getElementById("nameInput").value = "";
+
+    drawWheel();
+    updateList();
+}
+
+// Draw wheel slices
+function drawWheel() {
+    wheel.innerHTML = "";
+    const sliceAngle = 360 / items.length;
+
+    items.forEach((item, index) => {
+        const slice = document.createElement("div");
+        slice.className = "slice";
+
+        slice.style.background = randomColor();
+        slice.style.transform =
+            `rotate(${index * sliceAngle}deg) skewY(${90 - sliceAngle}deg)`;
+
+        slice.innerHTML =
+            `<div style='transform:skewY(${-(90 - sliceAngle)}deg) rotate(${sliceAngle / 2}deg);'>
+                 ${item}
+             </div>`;
+
+        wheel.appendChild(slice);
+    });
+}
+
+// Update name list with remove button
+function updateList() {
+    listBox.innerHTML = "";
+    items.forEach((name, i) => {
+        const row = document.createElement("div");
+        row.className = "list-item";
+
+        row.innerHTML = `
+            ${name}
+            <button class="remove-btn" onclick="removeName(${i})">X</button>
+        `;
+        listBox.appendChild(row);
+    });
+}
+
+// Remove name
+function removeName(index) {
+    items.splice(index, 1);
+    drawWheel();
+    updateList();
+}
+
+// Spin wheel
+function spinWheel() {
+    if (items.length === 0) return;
+
+    const randomSpin = 3000 + Math.random() * 3000;
+    angle += randomSpin;
+
+    wheel.style.transform =
+        `perspective(900px) rotateX(15deg) rotate(${angle}deg)`;
+
+    setTimeout(() => {
+        const winningIndex = Math.floor(
+            items.length - ((angle / 360) % items.length) - 1
+        );
+        const winner = items[(winningIndex + items.length) % items.length];
+
+        winnerBox.innerHTML = "🎉 Winner: " + winner;
+
+        startConfetti();      // 🎯 Confetti
+        showPopup(winner);    // 🎉 Celebration Popup
+
+    }, 4000);
+}
+</script>

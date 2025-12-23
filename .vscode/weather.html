@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+</head>
+<style>
+    body {
+    background-color: lightslategrey;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url(image.png);
+    background-size: cover;
+}
+
+.weather {
+    text-align: center;
+}
+
+#weatherResult {
+    margin-top: 20px;
+    height: 250px;
+    width: 250px;
+    border: 2px solid black;
+    background-image: url();
+    background-size: cover;
+    font-weight: bold;
+    
+    
+}
+#cityInput{
+    height: 30px;
+ font-weight: bold ;
+
+}
+#getWeatherBtn{
+background-color: darkorange;
+}
+h1{
+    color:honeydew;
+}
+</style>
+<body>
+    <div class="weather">
+    <h1>Weather Dashboard</h1>
+
+    <input type="text" id="cityInput" placeholder="Enter your city">
+    <button id="getWeatherBtn">Get Weather</button>
+
+    <div id="weatherResult"></div>
+
+    <script>
+
+        const apikey = "584872a7aba151544633bfe550e03f7a"; // Your API key
+
+        async function getWeather(city) {
+            const weatherResult = document.getElementById("weatherResult");
+            weatherResult.textContent = "Loading...";
+
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}&units=metric`
+                );
+
+                if (!response.ok) {
+                    throw new Error("City not found");
+                }
+
+                const data = await response.json();
+
+                weatherResult.innerHTML = `
+                    <h2>Weather in ${data.name}</h2>
+                    <p>Temperature: ${data.main.temp}°C</p>
+                    <p>Humidity: ${data.main.humidity}%</p>
+                    <p>Conditions: ${data.weather[0].description}</p>
+                `;
+            } catch (error) {
+                weatherResult.textContent = "Error: " + error.message;
+            }
+        }
+
+        document.getElementById("getWeatherBtn").addEventListener("click", () => {
+            const city = document.getElementById("cityInput").value.trim();
+
+            if (city) {
+                getWeather(city);
+            }
+        });
+
+    </script>
+</body>
+</html>

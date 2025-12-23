@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Product Form (DOM + JS)</title>
+</head>
+<body>
+  <h1>Simple Product Form (DOM + JS)</h1>
+
+  <!-- Product Form -->
+  <form id="productForm">
+    <label>
+      Product Name: <input type="text" id="name" required />
+    </label>
+    <br />
+    <label>
+      Category: <input type="text" id="category" />
+    </label>
+    <br />
+    <label>
+      Price: <input type="number" id="price" min="0" step="0.01" required />
+    </label>
+    <br />
+    <label>
+      Quantity: <input type="number" id="qty" min="0" step="1" required />
+    </label>
+    <br />
+    <button type="submit" id="saveBtn">Add Product</button>
+    <button type="button" id="clearBtn">Clear Form</button>
+  </form>
+
+  <hr />
+
+  <!-- Search & Summary -->
+  <label>
+    Search: <input type="text" id="search" placeholder="Search by name or category" />
+  </label>
+  <p id="summary">Total products: 0 — Total value: 0</p>
+
+  <!-- Products Table -->
+  <table border="1" id="productsTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // Simple product manager using DOM + localStorage
+    const productForm = document.getElementById('productForm');
+    const nameInput = document.getElementById('name');
+    const categoryInput = document.getElementById('category');
+    const priceInput = document.getElementById('price');
+    const qtyInput = document.getElementById('qty');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const tableBody = document.querySelector('#productsTable tbody');
+    const summary = document.getElementById('summary');
+    const searchInput = document.getElementById('search');
+
+    let products = []; // array of {id, name, category, price, qty}
+    let editId = null; // if editing, id of product being edited
+
+    // Load from localStorage
+    function load() {
+      const raw = localStorage.getItem('products');
+      products = raw ? JSON.parse(raw) : [];
+    }
+
+    // Save to localStorage
+    function save() {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    // Render table based on products and search filter
+    function render() {
+      const q = searchInput.value.trim().toLowerCase();
+      tableBody.innerHTML = '';
+
+      const filtered = products.filter(p => {
+        if (!q) return true;
+        return (
+          p.name.toLowerCase().includes(q) ||
+          (p.category && p.category.toLowerCase().includes(q))
+        );
+      });
+
+      let totalValue = 0;
+      filtered.forEach((p, i) => {
+        const tr = document.createElement('tr');
+        const total = Number(p.price) * Number(p.qty);
+        totalValue += total;
+
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(p.category || '')}</td>
+          <td>${Number(p.price).toFixed(2)}</td>
+          <td>${Number(p.qty)}</td>
+          <td>${total.toFixed(2)}</td>
+          <td>
+            <button data-id="${p.id}" class="edit">Edit</button>
+            <button data-id="${p.id}" class="delete">Delete</button>
+          </td>
+        `;
+
+        tableBody.appendChild(tr);
+      });
+
+      summary.textContent = `Total products: ${filtered.length} — Total value: ${totalValue.toFixed(2)}`;
+
+      // attach action listeners (delegation would also work)
+      document.querySelectorAll('.edit').forEach(btn => {
+        btn.onclick = () => startEdit(btn.dataset.id);
+      });
+      document.querySelectorAll('.delete').forEach(btn => {
+        btn.onclick = () => removeProduct(btn.dataset.id);
+      });
+    }
+
+    // Simple id generator
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    // Add or update product
+    productForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = nameInput.value.trim();
+      const category = categoryInput.value.trim();
+      const price = parseFloat(priceInput.value);
+      const qty = parseInt(qtyInput.value, 10);
+
+      // Basic validation
+      if (!name) return alert('Product name required');
+      if (isNaN(price) || price < 0) return alert('Price should be a non-negative number');
+      if (isNaN(qty) || qty < 0) return alert('Quantity should be a non-negative integer');
+
+      if (editId) {
+        // update
+        const idx = products.findIndex(p => p.id === editId);
+        if (idx > -1) {
+          products[idx] = { id: editId, name, category, price, qty };
+          editId = null;
+          saveBtn.textContent = 'Add Product';
+        }
+      } else {
+        // create
+        products.push({ id: uid(), name, category, price, qty });
+      }
+
+      save();
+      render();
+      productForm.reset();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      productForm.reset();
+      editId = null;
+      saveBtn.textContent = 'Add Product';
+    });
+
+    function startEdit(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      nameInput.value = p.name;
+      categoryInput.value = p.category || '';
+      priceInput.value = p.price;
+      qtyInput.value = p.qty;
+      editId = id;
+      saveBtn.textContent = 'Update Product';
+    }
+
+    function removeProduct(id) {
+      if (!confirm('Delete this product?')) return;
+      products = products.filter(p => p.id !== id);
+      save();
+      render();
+    }
+
+    searchInput.addEventListener('input', render);
+
+    // small utility to avoid inserting raw HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // init
+    load();
+    render();
+  </script>
+</body>
+</html>
